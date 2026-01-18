@@ -11,7 +11,9 @@ import TeamDashboard from './components/TeamDashboard';
 import TeamMembers from './components/TeamMembers';
 import TeamRolesPanel from './components/TeamRolesPanel'; 
 import GuidePanel from './components/GuidePanel'; 
-import { Moon, Sun, BarChart3, LogOut, Layers, ChevronLeft, BookOpen, Wifi } from 'lucide-react';
+import DeployPanel from './components/DeployPanel'; 
+import ConfigPanel from './components/ConfigPanel';
+import { Moon, Sun, BarChart3, LogOut, Layers, ChevronLeft, BookOpen, Settings, Zap } from 'lucide-react';
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
@@ -19,7 +21,7 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : null;
   });
 
-  const [view, setView] = useState<'dashboard' | 'matrix' | 'members' | 'guide' | 'roles'>('dashboard');
+  const [view, setView] = useState<'dashboard' | 'matrix' | 'members' | 'guide' | 'roles' | 'deploy' | 'config'>('dashboard');
   const [activeTab, setActiveTab] = useState<'vote' | 'results' | 'ai'>('vote');
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   
@@ -28,35 +30,43 @@ const App: React.FC = () => {
   const [savedProfiles, setSavedProfiles] = useState<Member[]>([]);
   const [votes, setVotes] = useState<VotesState>(INITIAL_VOTES);
   
+  // Estados Dinâmicos para Configuração (Matriz)
+  const [activeProposals, setActiveProposals] = useState<Proposal[]>(DEFAULT_PROPOSALS);
+  const [activeMembers, setActiveMembers] = useState<Member[]>(DEFAULT_MEMBERS);
+  
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') === 'dark');
-  const [isOnline, setIsOnline] = useState(true);
+  const [syncStatus, setSyncStatus] = useState<'online' | 'offline' | 'error'>('online');
 
-  // --- SINCRONIZAÇÃO (AGORA LOCAL/AWS READY) ---
+  // --- SINCRONIZAÇÃO COM BACKEND ---
 
   const syncData = useCallback(async () => {
     if(!currentUser) return;
     try {
-        // Agora busca do LocalStorage (via api.ts refatorado)
-        const [remoteTeams, remoteProfiles, remoteVotes] = await Promise.all([
+        const [remoteTeams, remoteProfiles, remoteVotes, remoteProposals, remoteMembers] = await Promise.all([
             api.fetchData('teams'),
             api.fetchData('profiles'),
-            api.fetchData('votes')
+            api.fetchData('votes'),
+            api.fetchData('proposals'),
+            api.fetchData('members')
         ]);
 
         if (remoteTeams) setTeams(remoteTeams);
         if (remoteProfiles) setSavedProfiles(remoteProfiles);
         if (remoteVotes) setVotes(remoteVotes);
+        if (remoteProposals) setActiveProposals(remoteProposals);
+        if (remoteMembers) setActiveMembers(remoteMembers);
 
-        setIsOnline(true);
+        setSyncStatus('online');
     } catch (e: any) {
-        console.error("Erro de sync:", e);
-        setIsOnline(false);
+        setSyncStatus('error');
     }
   }, [currentUser]);
 
   useEffect(() => {
     if(currentUser) {
         syncData();
+        // Sync periódico desligado para evitar overwrites durante edição local intensa, 
+        // ou poderia ser reativado com lógica de merge.
     }
   }, [currentUser, syncData]);
 
@@ -77,7 +87,8 @@ const App: React.FC = () => {
 
   const handleVote = async (pid: string, cidx: number, score: Score) => {
     if (!currentUser) return;
-    const memberId = CORE_TEAM_IDS.find(id => currentUser.name.toLowerCase().includes(id)) || 'visitor';
+    // Usa o ID do usuário se estiver na lista de membros, senão visitor
+    const memberId = activeMembers.find(m => currentUser.name.toLowerCase().includes(m.id))?.id || 'visitor';
     
     const newVotes = JSON.parse(JSON.stringify(votes));
     if(!newVotes[memberId]) newVotes[memberId] = {};
@@ -86,6 +97,90 @@ const App: React.FC = () => {
 
     setVotes(newVotes);
     await api.saveData('votes', newVotes);
+  };
+
+  // --- HANDLERS DO CONFIG PANEL ---
+
+  const handleUpdateMember = async (id: string, name: string) => {
+    const newMembers = activeMembers.map(m => m.id === id ? { ...m, name } : m);
+    setActiveMembers(newMembers);
+    await api.saveData('members', newMembers);
+  };
+
+  const handleAddMember = async () => {
+    const newMember: Member = {
+        id: `member_${Date.now()}`,
+        name: 'Novo Membro',
+        role: 'Avaliador',
+        bio: 'Novo integrante.'
+    };
+    const newMembers = [...activeMembers, newMember];
+    setActiveMembers(newMembers);
+    await api.saveData('members', newMembers);
+  };
+
+  const handleRemoveMember = async (id: string) => {
+    if(window.confirm('Remover membro da votação?')) {
+        const newMembers = activeMembers.filter(m => m.id !== id);
+        setActiveMembers(newMembers);
+        await api.saveData('members', newMembers);
+    }
+  };
+
+  const handleUpdateProposal = async (id: string, field: 'name' | 'desc' | 'link', value: string, descIndex?: number) => {
+    const newProposals = activeProposals.map(p => {
+        if (p.id !== id) return p;
+        if (field === 'name') return { ...p, name: value };
+        if (field === 'link') return { ...p, link: value };
+        if (field === 'desc' && typeof descIndex === 'number') {
+            const newDescs = [...p.descriptions];
+            newDescs[descIndex] = value;
+            return { ...p, descriptions: newDescs };
+        }
+        return p;
+    });
+    setActiveProposals(newProposals);
+    await api.saveData('proposals', newProposals);
+  };
+
+  const handleAddProposal = async () => {
+    const newProposal: Proposal = {
+        id: `prop_${Date.now()}`,
+        name: 'Nova Proposta',
+        descriptions: ['', '', '', ''],
+        link: ''
+    };
+    const newProposals = [...activeProposals, newProposal];
+    setActiveProposals(newProposals);
+    await api.saveData('proposals', newProposals);
+  };
+
+  const handleRemoveProposal = async (id: string) => {
+    if(window.confirm('Excluir proposta e todos os votos associados?')) {
+        const newProposals = activeProposals.filter(p => p.id !== id);
+        setActiveProposals(newProposals);
+        await api.saveData('proposals', newProposals);
+    }
+  };
+
+  const handleImportData = async (data: any) => {
+    if (data.members) {
+        setActiveMembers(data.members);
+        await api.saveData('members', data.members);
+    }
+    if (data.proposals) {
+        setActiveProposals(data.proposals);
+        await api.saveData('proposals', data.proposals);
+    }
+  };
+
+  const handleResetConfig = async () => {
+    if(window.confirm('Restaurar configuração padrão? Isso apagará propostas personalizadas.')) {
+        setActiveMembers(DEFAULT_MEMBERS);
+        setActiveProposals(DEFAULT_PROPOSALS);
+        await api.saveData('members', DEFAULT_MEMBERS);
+        await api.saveData('proposals', DEFAULT_PROPOSALS);
+    }
   };
 
   // --- EFEITOS UI ---
@@ -107,6 +202,11 @@ const App: React.FC = () => {
 
   if (!currentUser) return <LoginPanel onLogin={setCurrentUser} />;
 
+  // Renderização Fullscreen (Deploy)
+  if (view === 'deploy') {
+    return <DeployPanel currentUser={currentUser} onBack={() => setView('dashboard')} />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors duration-200 font-sans">
       <header className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50">
@@ -116,13 +216,17 @@ const App: React.FC = () => {
             <div>
               <h1 className="text-lg font-black dark:text-white leading-none tracking-tighter">Matriz<span className="text-orange-500">Cognis</span></h1>
               <p className="text-[10px] text-slate-400 mt-1 font-bold uppercase tracking-widest flex items-center gap-2">
-                 <Wifi size={10} className="text-emerald-500" /> SYSTEM READY (AWS S3 MODE)
+                {syncStatus === 'online' ? <span className="text-emerald-500">● CONECTADO</span> : <span className="text-amber-500">● MODO OFFLINE</span>}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => setView('guide')} className="text-slate-500 hover:text-orange-500 mr-4" title="Documentação">
+            <button onClick={() => setView('guide')} className="text-slate-500 hover:text-orange-500" title="Documentação">
                 <BookOpen size={20} />
+            </button>
+            
+            <button onClick={() => setView('config')} className={`text-slate-500 hover:text-orange-500 mr-2 ${view === 'config' ? 'text-orange-500' : ''}`} title="Configurações & Formulário">
+                <Settings size={20} />
             </button>
 
             {view !== 'dashboard' && (
@@ -143,7 +247,23 @@ const App: React.FC = () => {
         </div>
       </header>
       <main className="container mx-auto px-4 py-8 flex-1">
-        {view === 'guide' && <GuidePanel members={DEFAULT_MEMBERS} proposals={DEFAULT_PROPOSALS} />}
+        {view === 'guide' && <GuidePanel members={activeMembers} proposals={activeProposals} />}
+
+        {view === 'config' && (
+            <ConfigPanel 
+                members={activeMembers}
+                proposals={activeProposals}
+                onAddMember={handleAddMember}
+                onUpdateMember={handleUpdateMember}
+                onRemoveMember={handleRemoveMember}
+                onAddProposal={handleAddProposal}
+                onUpdateProposal={handleUpdateProposal}
+                onRemoveProposal={handleRemoveProposal}
+                onImportData={handleImportData}
+                onReset={handleResetConfig}
+                onSaveAndExit={() => setView('dashboard')}
+            />
+        )}
 
         {view === 'dashboard' && (
           <TeamDashboard 
@@ -152,6 +272,7 @@ const App: React.FC = () => {
             onEnterMatrix={(t) => { setSelectedTeam(t); setView('matrix'); }} 
             onViewMembers={(t) => { setSelectedTeam(t); setView('members'); }}
             onViewRoles={(t) => { setSelectedTeam(t); setView('roles'); }}
+            onDeployProject={(t) => { setView('deploy'); }}
             currentUser={currentUser} 
           />
         )}
@@ -189,9 +310,10 @@ const App: React.FC = () => {
                   <button onClick={() => setActiveTab('ai')} className={`px-6 py-2 rounded-lg text-xs font-black transition-all ${activeTab === 'ai' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500'}`}>IA</button>
                </div>
             </div>
-            {activeTab === 'vote' && <VotingForm member={DEFAULT_MEMBERS.find(m => currentUser.name.toLowerCase().includes(m.id)) || DEFAULT_MEMBERS[0]} votes={votes} proposals={DEFAULT_PROPOSALS} onVote={handleVote} />}
-            {activeTab === 'results' && <ResultsMatrix votes={votes} members={DEFAULT_MEMBERS} proposals={DEFAULT_PROPOSALS} />}
-            {activeTab === 'ai' && <AIChatPanel votes={votes} members={DEFAULT_MEMBERS} proposals={DEFAULT_PROPOSALS} />}
+            {/* Agora usando activeMembers e activeProposals para refletir as edições do ConfigPanel */}
+            {activeTab === 'vote' && <VotingForm member={activeMembers.find(m => currentUser.name.toLowerCase().includes(m.id)) || activeMembers[0]} votes={votes} proposals={activeProposals} onVote={handleVote} />}
+            {activeTab === 'results' && <ResultsMatrix votes={votes} members={activeMembers} proposals={activeProposals} />}
+            {activeTab === 'ai' && <AIChatPanel votes={votes} members={activeMembers} proposals={activeProposals} />}
           </div>
         )}
       </main>

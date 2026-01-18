@@ -2,17 +2,18 @@
 // src/lib/api.ts
 // MÓDULO STATIC (SERVERLESS READY)
 // Este módulo simula um backend usando o LocalStorage do navegador.
-// Isso permite hospedar o site no AWS S3 sem precisar de um container Docker ou EC2 rodando Node.js.
 
-import { User, Team, Member, VotesState } from '../types';
-import { TEAMS as DEFAULT_TEAMS, MEMBERS as DEFAULT_MEMBERS, INITIAL_VOTES } from '../constants';
+import { User, Team, Member, VotesState, Proposal } from '../types';
+import { TEAMS as DEFAULT_TEAMS, MEMBERS as DEFAULT_MEMBERS, INITIAL_VOTES, PROPOSALS as DEFAULT_PROPOSALS } from '../constants';
 
 // Chaves de armazenamento local
 const STORAGE_KEYS = {
   TEAMS: 'matrix_teams_v2',
   PROFILES: 'matrix_profiles_v2',
   VOTES: 'matrix_votes_v2',
-  USERS: 'matrix_users_v2'
+  USERS: 'matrix_users_v2',
+  PROPOSALS: 'matrix_proposals_v2',
+  VOTING_MEMBERS: 'matrix_voting_members_v2'
 };
 
 // Helpers de Delay para simular latência de rede (UX realista)
@@ -83,6 +84,16 @@ export const api = {
       return stored ? JSON.parse(stored) : INITIAL_VOTES;
     }
 
+    if (key === 'proposals') {
+      const stored = localStorage.getItem(STORAGE_KEYS.PROPOSALS);
+      return stored ? JSON.parse(stored) : DEFAULT_PROPOSALS;
+    }
+
+    if (key === 'members') { // Voting members
+      const stored = localStorage.getItem(STORAGE_KEYS.VOTING_MEMBERS);
+      return stored ? JSON.parse(stored) : DEFAULT_MEMBERS;
+    }
+
     return null;
   },
 
@@ -92,6 +103,8 @@ export const api = {
     if (key === 'teams') localStorage.setItem(STORAGE_KEYS.TEAMS, JSON.stringify(data));
     if (key === 'profiles') localStorage.setItem(STORAGE_KEYS.PROFILES, JSON.stringify(data));
     if (key === 'votes') localStorage.setItem(STORAGE_KEYS.VOTES, JSON.stringify(data));
+    if (key === 'proposals') localStorage.setItem(STORAGE_KEYS.PROPOSALS, JSON.stringify(data));
+    if (key === 'members') localStorage.setItem(STORAGE_KEYS.VOTING_MEMBERS, JSON.stringify(data));
     
     return { success: true };
   },
