@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { User } from '../types';
 import { api } from '../lib/api';
@@ -73,7 +72,7 @@ const CAROUSEL_STEPS = [
   },
   { 
     type: 'standard',
-    title: "Módulo MatrizCognis", 
+    title: "Módulo PortfólioDev", 
     description: "Um ecossistema especializado para auditoria técnica com critérios ágeis e inteligência artificial de ponta.", 
     icons: [Cpu, Brain, ShieldCheck], 
     color: "from-purple-900/40 to-slate-950" 
@@ -284,7 +283,7 @@ const LoginPanel: React.FC<{ onLogin: (user: User) => void }> = ({ onLogin }) =>
              <div className="relative z-10 flex flex-col sm:flex-row justify-between items-end gap-6 mt-auto w-full">
                 <div className="flex flex-col bg-black/40 backdrop-blur-md px-6 py-4 rounded-[30px] rounded-bl-[10px] border border-white/5 shadow-lg min-w-[200px]">
                     <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mb-1 opacity-80">Com suporte do sistema:</p>
-                    <div className="text-xl font-black text-white tracking-tight leading-none">Matriz<span className="text-orange-500">Cognis</span></div>
+                    <div className="text-xl font-black text-white tracking-tight leading-none">Portfólio<span className="text-orange-500">CloudDev</span></div>
                 </div>
                 <a href="https://www.linkedin.com/in/edivaldojuniordev/" target="_blank" rel="noreferrer" className="group relative flex flex-col items-end bg-white/5 backdrop-blur-2xl px-6 py-4 rounded-[30px] rounded-br-[10px] border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] animate-pulse-soft hover:bg-white/10 transition-all min-w-[220px]">
                    <p className="text-[8px] text-blue-300/70 font-black uppercase tracking-[0.2em] mb-1">Engenharia de Software:</p>

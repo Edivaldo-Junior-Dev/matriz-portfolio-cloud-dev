@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { Member, Proposal, VotesState, CRITERIA } from '../types';
@@ -130,7 +129,7 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ proposals, members, votes }) 
         
         // PROTOCOLO GÊNESE V3.5 - CLEAN TEXT STANDARD
         const systemInstruction = `
-        IDENTIDADE: Você é o 'Arquiteto Virtual MatrizCognis', assistente estratégico do Edivaldo Junior.
+        IDENTIDADE: Você é o 'Arquiteto Virtual PortfólioCloudDev', assistente estratégico do Edivaldo Junior.
         
         DIRETRIZ DE BATALHA (v3.5 - LEI DE TEXTO LIMPO):
         1. Você conhece o Plano Trello v2.0.

@@ -130,7 +130,7 @@ const TeamDashboard: React.FC<TeamDashboardProps> = ({ teams, onSaveTeam, onEnte
                   onClick={() => onEnterMatrix(team)}
                   className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-4 cloud-shape-button text-xs font-black flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-lg mt-1"
                 >
-                 <BarChart3 size={16} /> MATRIZ COGNIS
+                 <BarChart3 size={16} /> MATRIZ DE ANÁLISE
                </button>
             </div>
 
