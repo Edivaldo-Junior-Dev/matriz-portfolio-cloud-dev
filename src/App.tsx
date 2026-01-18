@@ -64,8 +64,6 @@ const App: React.FC = () => {
   useEffect(() => {
     if(currentUser) {
         syncData();
-        // Sync periódico desligado para evitar overwrites durante edição local intensa, 
-        // ou poderia ser reativado com lógica de merge.
     }
   }, [currentUser, syncData]);
 
@@ -86,7 +84,6 @@ const App: React.FC = () => {
 
   const handleVote = async (pid: string, cidx: number, score: Score) => {
     if (!currentUser) return;
-    // Usa o ID do usuário se estiver na lista de membros, senão visitor
     const memberId = activeMembers.find(m => currentUser.name.toLowerCase().includes(m.id))?.id || 'visitor';
     
     const newVotes = JSON.parse(JSON.stringify(votes));

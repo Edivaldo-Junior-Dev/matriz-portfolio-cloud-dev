@@ -7,8 +7,6 @@ import {
   Smartphone, Users, BarChart3, Edit3, Sparkles
 } from 'lucide-react';
 
-// --- COMPONENTES VISUAIS AUXILIARES ---
-
 const TypewriterText: React.FC<{ text: string, speed?: number, delay?: number, active?: boolean, className?: string }> = ({ text, speed = 30, delay = 0, active = true, className = '' }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [index, setIndex] = useState(0);
@@ -60,8 +58,6 @@ const CarouselSlideIcons: React.FC<{ icons: any[] }> = ({ icons }) => (
   </div>
 );
 
-// --- CONFIGURAÇÃO DOS SLIDES ---
-
 const CAROUSEL_STEPS = [
   { 
     type: 'standard',
@@ -95,8 +91,6 @@ const CAROUSEL_STEPS = [
     color: "from-[#020c1b] to-[#0A192F]"
   }
 ];
-
-// --- COMPONENTE PRINCIPAL ---
 
 const LoginPanel: React.FC<{ onLogin: (user: User) => void }> = ({ onLogin }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -154,15 +148,12 @@ const LoginPanel: React.FC<{ onLogin: (user: User) => void }> = ({ onLogin }) =>
   };
 
   const slide = CAROUSEL_STEPS[currentSlide];
-
-  // ESTILOS DE VIDRO (MIRRORED EFFECT)
   const glassPanelRight = "bg-slate-900/40 backdrop-blur-xl border-l border-white/10 shadow-[inset_10px_0_20px_rgba(255,255,255,0.02)]";
   const glassInput = "w-full bg-white/5 backdrop-blur-md border border-white/10 focus:border-orange-500/50 focus:bg-white/10 transition-all rounded-2xl py-4 pl-5 pr-12 text-white font-bold placeholder:text-slate-500/60 outline-none shadow-inner";
   const glassButtonSecondary = "w-full py-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 backdrop-blur-md transition-all flex items-center justify-center gap-2 group shadow-lg";
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[#030014] font-sans overflow-hidden relative">
-      
       <style>{`
         @keyframes shine-move {
           0% { background-position: -200% center; }
@@ -192,14 +183,11 @@ const LoginPanel: React.FC<{ onLogin: (user: User) => void }> = ({ onLogin }) =>
         }
       `}</style>
 
-      {/* Background Ambience */}
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-900/20 rounded-full blur-[150px] pointer-events-none"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-900/10 rounded-full blur-[150px] pointer-events-none"></div>
 
-      {/* Main Card Container */}
       <div className="bg-slate-950/60 backdrop-blur-3xl border border-white/10 w-full max-w-6xl min-h-[850px] cloud-shape shadow-[0_0_100px_rgba(0,0,0,0.8)] flex flex-col md:flex-row overflow-hidden relative z-10">
         
-        {/* LADO ESQUERDO (Mantido) */}
         <div className={`hidden md:flex flex-col w-1/2 p-12 relative transition-all duration-[2000ms] bg-gradient-to-br ${slide.color} border-r border-white/5`}>
            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 mix-blend-overlay"></div>
            
@@ -246,28 +234,15 @@ const LoginPanel: React.FC<{ onLogin: (user: User) => void }> = ({ onLogin }) =>
                              <TypewriterText text={slide.bio || ''} speed={15} delay={500} active={true} />
                         </div>
                         
-                        {/* CARD REFLEXIVO PARA HABILIDADES */}
                         <div className="mt-4 relative group/glass overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-4 backdrop-blur-md shadow-[inset_0_0_20px_rgba(255,255,255,0.05)] hover:border-[#64FFDA]/30 transition-colors duration-500">
-                            {/* Shine Effect Overlay */}
                             <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover/glass:animate-shine pointer-events-none" />
-
-                            <p className="text-[#64FFDA] text-[10px] font-bold uppercase tracking-widest mb-4 text-center border-b border-white/5 pb-2">
-                                Minhas Habilidades
-                            </p>
-
+                            <p className="text-[#64FFDA] text-[10px] font-bold uppercase tracking-widest mb-4 text-center border-b border-white/5 pb-2">Minhas Habilidades</p>
                             <div className="flex flex-wrap justify-center gap-2.5">
                                 {slide.skills?.map((skill, i) => (
-                                    <span
-                                        key={i}
-                                        className="relative px-3 py-1.5 rounded-lg bg-[#0A192F]/80 border border-white/10 text-[10px] font-medium text-slate-300 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:text-[#64FFDA] hover:border-[#64FFDA]/50 hover:shadow-[0_0_15px_rgba(100,255,218,0.2)] cursor-default select-none"
-                                        style={{ animationDelay: `${1500 + (i * 100)}ms` }}
-                                    >
-                                        {skill}
-                                    </span>
+                                    <span key={i} className="relative px-3 py-1.5 rounded-lg bg-[#0A192F]/80 border border-white/10 text-[10px] font-medium text-slate-300 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:text-[#64FFDA] hover:border-[#64FFDA]/50 hover:shadow-[0_0_15px_rgba(100,255,218,0.2)] cursor-default select-none" style={{ animationDelay: `${1500 + (i * 100)}ms` }}>{skill}</span>
                                 ))}
                             </div>
                         </div>
-
                     </div>
                  </div>
              </div>
@@ -294,9 +269,7 @@ const LoginPanel: React.FC<{ onLogin: (user: User) => void }> = ({ onLogin }) =>
            )}
         </div>
 
-        {/* LADO DIREITO - FORMULÁRIO COM EFEITO ESPELHADO */}
         <div className={`w-full md:w-1/2 relative p-12 flex flex-col justify-center ${glassPanelRight}`}>
-            
             <div className="max-w-md mx-auto w-full mt-10 relative z-20">
                 <div className="mb-12 text-center group">
                     <h1 className="text-7xl md:text-8xl font-black tracking-tighter mb-2 leading-[0.9] flex flex-col items-center justify-center">
@@ -305,21 +278,10 @@ const LoginPanel: React.FC<{ onLogin: (user: User) => void }> = ({ onLogin }) =>
                     </h1>
                 </div>
 
-                {/* Abas Aluno/Visitante - Espelhado */}
                 <div className="flex justify-center mb-8">
                     <div className="flex p-1.5 bg-black/20 backdrop-blur-md rounded-2xl border border-white/5 shadow-inner">
-                        <button 
-                            onClick={() => { setUserType('aluno'); setIsRegistering(false); }}
-                            className={`px-8 py-3 rounded-xl text-xs font-bold transition-all ${userType === 'aluno' ? 'bg-gradient-to-r from-orange-500/80 to-orange-600/80 text-white shadow-[0_0_20px_rgba(249,115,22,0.3)] backdrop-blur-md border border-white/10' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
-                        >
-                            ALUNO
-                        </button>
-                        <button 
-                            onClick={() => { setUserType('visitante'); setIsRegistering(false); }}
-                            className={`px-8 py-3 rounded-xl text-xs font-bold transition-all ${userType === 'visitante' ? 'bg-white/10 text-white border border-white/10 backdrop-blur-md shadow-lg' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
-                        >
-                            VISITANTE - AWS
-                        </button>
+                        <button onClick={() => { setUserType('aluno'); setIsRegistering(false); }} className={`px-8 py-3 rounded-xl text-xs font-bold transition-all ${userType === 'aluno' ? 'bg-gradient-to-r from-orange-500/80 to-orange-600/80 text-white shadow-[0_0_20px_rgba(249,115,22,0.3)] backdrop-blur-md border border-white/10' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}>ALUNO</button>
+                        <button onClick={() => { setUserType('visitante'); setIsRegistering(false); }} className={`px-8 py-3 rounded-xl text-xs font-bold transition-all ${userType === 'visitante' ? 'bg-white/10 text-white border border-white/10 backdrop-blur-md shadow-lg' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}>VISITANTE - AWS</button>
                     </div>
                 </div>
 
@@ -387,15 +349,11 @@ const LoginPanel: React.FC<{ onLogin: (user: User) => void }> = ({ onLogin }) =>
                             <ArrowRight size={14} className="text-slate-500 group-hover:text-orange-500 transition-colors group-hover:translate-x-1" />
                         </button>
                     </div>
-
                 </div>
             </div>
-            
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-orange-500/10 rounded-full blur-[100px] pointer-events-none"></div>
         </div>
-
       </div>
-
       <div className="absolute bottom-4 left-4 text-[10px] text-slate-800 pointer-events-none select-none opacity-50">Admin: admin@cloud.com | 123</div>
     </div>
   );

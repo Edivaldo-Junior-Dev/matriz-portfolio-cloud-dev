@@ -1,11 +1,6 @@
-// src/lib/api.ts
-// MÓDULO STATIC (SERVERLESS READY)
-// Este módulo simula um backend usando o LocalStorage do navegador.
-
 import { User, Team, Member, VotesState, Proposal } from '../types';
 import { TEAMS as DEFAULT_TEAMS, MEMBERS as DEFAULT_MEMBERS, INITIAL_VOTES, PROPOSALS as DEFAULT_PROPOSALS } from '../constants';
 
-// Chaves de armazenamento local
 const STORAGE_KEYS = {
   TEAMS: 'matrix_teams_v2',
   PROFILES: 'matrix_profiles_v2',
@@ -15,15 +10,12 @@ const STORAGE_KEYS = {
   VOTING_MEMBERS: 'matrix_voting_members_v2'
 };
 
-// Helpers de Delay para simular latência de rede (UX realista)
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const api = {
-  // --- AUTH (Simulado) ---
   login: async (email: string, password: string): Promise<{ user: User, token: string }> => {
-    await delay(800); // Simula rede
+    await delay(800);
 
-    // 1. Verifica admin hardcoded
     if (email === 'admin@cloud.com' && password === 'admin123') {
       return {
         user: { id: 'admin', name: 'Administrador Chefe', email, role: 'admin' },
@@ -31,14 +23,13 @@ export const api = {
       };
     }
 
-    // 2. Verifica usuários cadastrados no LocalStorage
     const usersRaw = localStorage.getItem(STORAGE_KEYS.USERS);
     const users: any[] = usersRaw ? JSON.parse(usersRaw) : [];
     const found = users.find(u => u.email === email && u.password === password);
 
     if (found) {
       return {
-        user: { id: found.id, name: found.name, email: found.email, role: 'member', teamNumber: 3 }, // Default team 3 para demo
+        user: { id: found.id, name: found.name, email: found.email, role: 'member', teamNumber: 3 },
         token: `mock_token_${found.id}`
       };
     }
@@ -62,10 +53,7 @@ export const api = {
     return { message: "Usuário registrado localmente." };
   },
 
-  // --- DATA SYNC ---
-  
   fetchData: async (key: string) => {
-    // Retorna dados do LocalStorage ou os Defaults do constants.ts se estiver vazio
     await delay(300);
     
     if (key === 'teams') {
@@ -88,7 +76,7 @@ export const api = {
       return stored ? JSON.parse(stored) : DEFAULT_PROPOSALS;
     }
 
-    if (key === 'members') { // Voting members
+    if (key === 'members') {
       const stored = localStorage.getItem(STORAGE_KEYS.VOTING_MEMBERS);
       return stored ? JSON.parse(stored) : DEFAULT_MEMBERS;
     }
@@ -97,7 +85,7 @@ export const api = {
   },
 
   saveData: async (key: string, data: any) => {
-    await delay(400); // Simula salvamento
+    await delay(400);
     
     if (key === 'teams') localStorage.setItem(STORAGE_KEYS.TEAMS, JSON.stringify(data));
     if (key === 'profiles') localStorage.setItem(STORAGE_KEYS.PROFILES, JSON.stringify(data));
@@ -108,9 +96,7 @@ export const api = {
     return { success: true };
   },
   
-  // --- ADMIN ---
   createAdmin: async (name: string, email: string, password: string) => {
-      // No modo local, todo registro vira usuário normal, mas simulamos sucesso
       return api.register(name, email, password);
   }
 };
