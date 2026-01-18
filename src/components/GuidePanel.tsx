@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { CRITERIA, Member, Proposal } from '../types';
-import { BookOpen, UserCheck, BarChart3, Sparkles, Settings, Code2, Database, Layers, CheckCircle2, ChevronDown, ChevronUp, Cpu, ShieldCheck, Cloud, Server, Globe, ArrowRight, LayoutList, Target, User, Flag, Shield, Key } from 'lucide-react';
+import { BookOpen, UserCheck, BarChart3, Sparkles, Settings, Code2, Database, Layers, CheckCircle2, ChevronDown, ChevronUp, Cpu, ShieldCheck, Cloud, Server, Globe, ArrowRight, LayoutList, Target, User, Flag, Shield, Key, FileText, Printer, Copy, AlertTriangle, Lock, Zap, MousePointerClick } from 'lucide-react';
 
 interface GuidePanelProps {
   members: Member[];
@@ -9,7 +9,7 @@ interface GuidePanelProps {
 }
 
 const GuidePanel: React.FC<GuidePanelProps> = ({ members, proposals }) => {
-  const [openSection, setOpenSection] = useState<string | null>('inventory'); // Abrir inventário por padrão para visualização imediata
+  const [openSection, setOpenSection] = useState<string | null>('dns_setup'); // Focando no DNS
 
   const toggleSection = (section: string) => {
     setOpenSection(openSection === section ? null : section);
@@ -46,264 +46,224 @@ const GuidePanel: React.FC<GuidePanelProps> = ({ members, proposals }) => {
 
       <div className="space-y-4">
 
-        {/* SECTION 4: INVENTÁRIO DE SERVIÇOS (NOVO - SOLICITADO) */}
-        <SectionHeader id="inventory" title="1. Inventário Oficial de Serviços AWS Utilizados" icon={Shield} colorClass="text-indigo-600 bg-indigo-600" />
-        {openSection === 'inventory' && (
+        {/* PASSO 1: DNS (ROUTE 53 + REGISTRO.BR) */}
+        <SectionHeader id="dns_setup" title="1. Configurar Domínio (Route 53 + Registro.br)" icon={Globe} colorClass="text-blue-600 bg-blue-600" />
+        {openSection === 'dns_setup' && (
           <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 space-y-6 animate-fade-in-down">
-             <div className="flex items-center gap-2 mb-4 p-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-800 dark:text-indigo-300 rounded-lg border border-indigo-200 dark:border-indigo-800">
-                <Key size={20} />
-                <span className="font-bold text-sm">Lista completa numerada conforme solicitação de auditoria.</span>
+             
+             <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 mb-4">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
+                   <strong>Objetivo:</strong> Dizer ao Registro.br que quem manda no seu domínio agora é a AWS.
+                </p>
              </div>
 
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[
-                    { n: 1, name: "AWS IAM (Identity & Access Management)", desc: "Gerenciamento de permissões de segurança. Criação de Roles para a Lambda acessar o S3 e Policies para o API Gateway.", icon: ShieldCheck },
-                    { n: 2, name: "Amazon Cognito", desc: "Gestão de Identidade (IDP). Controla o cadastro (Sign-up) e login (Sign-in) dos alunos, garantindo isolamento de dados (RNF02).", icon: UserCheck },
-                    { n: 3, name: "Amazon S3 (Simple Storage Service)", desc: "Armazenamento de Objetos. Bucket A para hospedagem do site estático (Frontend) e Bucket B para recebimento dos arquivos .zip (Uploads).", icon: Database },
-                    { n: 4, name: "Amazon CloudFront", desc: "CDN (Content Delivery Network). Distribui o conteúdo do S3 globalmente com baixa latência e fornece criptografia SSL/TLS (HTTPS).", icon: Globe },
-                    { n: 5, name: "Amazon Route 53", desc: "Serviço de DNS. Gerencia o domínio personalizado (ex: edivaldocloud.com) e aponta para a distribuição do CloudFront.", icon: Globe },
-                    { n: 6, name: "Amazon API Gateway", desc: "Porta de entrada da API REST. Recebe as requisições do Frontend, valida o Token JWT do Cognito e aciona a Lambda.", icon: Server },
-                    { n: 7, name: "AWS Lambda", desc: "Computação Serverless (FaaS). Executa a lógica de negócio: descompactação do zip, validação de arquivos e orquestração do deploy.", icon: Code2 },
-                    { n: 8, name: "Amazon DynamoDB", desc: "Banco de Dados NoSQL. Armazena metadados rápidos (Link gerado, ID do aluno, Timestamp) com latência de milissegundos.", icon: Database },
-                    { n: 9, name: "Amazon CloudWatch", desc: "Observabilidade. Coleta logs de execução da Lambda e métricas de erro do API Gateway para monitoramento.", icon: BarChart3 },
-                    { n: 10, name: "AWS Certificate Manager (ACM)", desc: "Segurança. Gerencia e renova automaticamente os certificados SSL/TLS públicos usados pelo CloudFront.", icon: Shield }
-                ].map((service) => (
-                    <div key={service.n} className="flex gap-4 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 hover:border-indigo-300 transition-colors">
-                        <div className="flex flex-col items-center gap-1">
-                            <span className="text-2xl font-black text-indigo-200 dark:text-indigo-900">{service.n}</span>
-                            <service.icon size={16} className="text-indigo-500" />
+             <div className="space-y-6 relative">
+                {/* Step A */}
+                <div className="flex gap-4">
+                    <div className="flex flex-col items-center">
+                        <div className="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-sm">A</div>
+                        <div className="h-full w-0.5 bg-slate-200 dark:bg-slate-700 my-1"></div>
+                    </div>
+                    <div className="pb-6">
+                        <h4 className="font-bold text-slate-800 dark:text-white">Na AWS: Criar Zona Hospedada</h4>
+                        <ol className="list-decimal list-inside text-sm text-slate-600 dark:text-slate-400 mt-2 space-y-1">
+                            <li>Pesquise por <strong>Route 53</strong> na AWS.</li>
+                            <li>Clique em <strong>Zonas hospedadas</strong> (Hosted zones).</li>
+                            <li>Clique em <strong>Criar zona hospedada</strong>.</li>
+                            <li>Em "Nome de domínio", digite: <code>edivaldojuniordev.com.br</code></li>
+                            <li>Role até o fim e clique em <strong>Criar zona hospedada</strong>.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                {/* Step B */}
+                <div className="flex gap-4">
+                    <div className="flex flex-col items-center">
+                        <div className="w-8 h-8 rounded-full bg-orange-600 text-white flex items-center justify-center font-bold text-sm">B</div>
+                        <div className="h-full w-0.5 bg-slate-200 dark:bg-slate-700 my-1"></div>
+                    </div>
+                    <div className="pb-6">
+                        <h4 className="font-bold text-slate-800 dark:text-white">Na AWS: Copiar os Servidores (NS)</h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
+                            Ao criar a zona, aparecerá um registro do tipo <strong>NS</strong> com 4 linhas parecidas com:
+                        </p>
+                        <div className="bg-slate-900 text-slate-300 p-3 rounded mt-2 font-mono text-xs">
+                            ns-123.awsdns-45.com<br/>
+                            ns-678.awsdns-12.net<br/>
+                            ns-xxx.awsdns-yy.org<br/>
+                            ns-zzz.awsdns-ww.co.uk
                         </div>
-                        <div>
-                            <h4 className="font-bold text-slate-800 dark:text-white">{service.name}</h4>
-                            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">{service.desc}</p>
+                        <p className="text-xs text-red-500 mt-2 font-bold">⚠️ COPIE ESSES 4 ENDEREÇOS (sem o ponto final, se tiver).</p>
+                    </div>
+                </div>
+
+                {/* Step C */}
+                <div className="flex gap-4">
+                    <div className="flex flex-col items-center">
+                        <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">C</div>
+                    </div>
+                    <div>
+                        <h4 className="font-bold text-slate-800 dark:text-white">No Registro.br: Alterar DNS</h4>
+                        <ol className="list-decimal list-inside text-sm text-slate-600 dark:text-slate-400 mt-2 space-y-1">
+                            <li>Acesse seu painel no <strong>Registro.br</strong>.</li>
+                            <li>Clique no domínio <code>edivaldojuniordev.com.br</code>.</li>
+                            <li>Role até a seção <strong>DNS</strong> e clique em <strong>Alterar Servidores DNS</strong>.</li>
+                            <li>Cole os 4 endereços da AWS nos campos (Master, Slave 1, etc).</li>
+                            <li>Clique em <strong>Salvar Alterações</strong>.</li>
+                        </ol>
+                        <div className="mt-2 p-2 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 text-xs rounded border border-yellow-200">
+                            Isso pode levar de 30 min a 2 horas para propagar. Prossiga para o passo 2 enquanto isso.
                         </div>
                     </div>
-                ))}
+                </div>
              </div>
           </div>
         )}
 
-        {/* SECTION 2: PLANO DE BATALHA TRELLO (NOVO) */}
-        <SectionHeader id="trello" title="2. Plano de Batalha: Execução Trello v2.0" icon={LayoutList} colorClass="text-blue-600 bg-blue-600" />
-        {openSection === 'trello' && (
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 space-y-8 animate-fade-in-down">
-            
-            {/* SQUADS */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border-l-4 border-purple-500">
-                    <h4 className="font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-2">
-                        <UserCheck size={16} className="text-purple-500"/> Comando Central
-                    </h4>
-                    <p className="text-sm text-slate-600 dark:text-slate-400"><strong>Emanuel Heráclio</strong></p>
-                    <span className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full mt-1 inline-block">Scrum Master</span>
-                </div>
-                <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border-l-4 border-blue-500">
-                    <h4 className="font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-2">
-                        <Server size={16} className="text-blue-500"/> Squad Alpha (Backend)
-                    </h4>
-                    <p className="text-sm text-slate-600 dark:text-slate-400"><strong>Gabriel Araújo</strong></p>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                        <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">DynamoDB</span>
-                        <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">Lambda</span>
-                    </div>
-                </div>
-                <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border-l-4 border-emerald-500">
-                    <h4 className="font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-2">
-                        <Globe size={16} className="text-emerald-500"/> Squad Bravo (Frontend)
-                    </h4>
-                    <p className="text-sm text-slate-600 dark:text-slate-400"><strong>Edivaldo Junior</strong></p>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                        <span className="text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full">React</span>
-                        <span className="text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full">Integração</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* SPRINTS */}
-            <div className="space-y-6">
-                <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
-                    <div className="bg-orange-500 text-white p-3 font-bold flex items-center gap-2">
-                        <Target size={20} /> Sprint 1: A Fundação (API & Protótipos)
-                    </div>
-                    <div className="p-4 bg-orange-50 dark:bg-orange-900/10 grid gap-3">
-                        
-                        <div className="bg-white dark:bg-slate-800 p-3 rounded shadow-sm border-l-4 border-blue-500 flex justify-between items-start">
-                             <div>
-                                <h5 className="font-bold text-slate-800 dark:text-white text-sm">[Infra] Setup AWS SAM/Terraform</h5>
-                                <p className="text-xs text-slate-500 mt-1">Provisionar S3, DynamoDB, Cognito e IAM Roles.</p>
-                             </div>
-                             <span className="text-[10px] font-bold uppercase text-blue-500">Squad Alpha</span>
-                        </div>
-
-                        <div className="bg-white dark:bg-slate-800 p-3 rounded shadow-sm border-l-4 border-blue-500 flex justify-between items-start">
-                             <div>
-                                <h5 className="font-bold text-slate-800 dark:text-white text-sm">[Backend] Lambda de Orquestração & API Gateway</h5>
-                                <p className="text-xs text-slate-500 mt-1">Handlers para upload e processamento. Endpoints REST.</p>
-                             </div>
-                             <span className="text-[10px] font-bold uppercase text-blue-500">Gabriel Araújo</span>
-                        </div>
-
-                        <div className="bg-white dark:bg-slate-800 p-3 rounded shadow-sm border-l-4 border-emerald-500 flex justify-between items-start">
-                             <div>
-                                <h5 className="font-bold text-slate-800 dark:text-white text-sm">[Frontend] Prototipagem & Telas UI</h5>
-                                <p className="text-xs text-slate-500 mt-1">Wireframes Figma + Código React (Login, Dashboard, Upload) sem lógica.</p>
-                             </div>
-                             <span className="text-[10px] font-bold uppercase text-emerald-500">Edivaldo Junior</span>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden opacity-75">
-                         <div className="bg-slate-700 text-white p-2 font-bold text-sm flex items-center gap-2">
-                            <Flag size={14} /> Sprint 2: Integração
-                        </div>
-                        <ul className="p-4 space-y-2 text-xs text-slate-600 dark:text-slate-300">
-                            <li>• [Frontend] Integração Auth Cognito (Edivaldo)</li>
-                            <li>• [Frontend] Conexão Dashboard com API (Edivaldo)</li>
-                            <li>• [Testes] Validação End-to-End</li>
-                        </ul>
-                    </div>
-                    <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden opacity-75">
-                         <div className="bg-slate-700 text-white p-2 font-bold text-sm flex items-center gap-2">
-                            <Flag size={14} /> Sprint 3: Polimento
-                        </div>
-                        <ul className="p-4 space-y-2 text-xs text-slate-600 dark:text-slate-300">
-                            <li>• [Frontend] Responsividade Mobile</li>
-                            <li>• [Doc] Dossiê Final (Emanuel)</li>
-                            <li>• [Apresentação] Slides e Roteiro</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-          </div>
-        )}
-
-        {/* SECTION 3: ARQUITETURA AWS */}
-        <SectionHeader id="aws" title="3. Mapeamento de Serviços: De Vercel/Supabase para AWS" icon={Cloud} colorClass="text-orange-500 bg-orange-500" />
-        {openSection === 'aws' && (
+        {/* PASSO 2: CERTIFICADO SSL (ACM) */}
+        <SectionHeader id="acm_setup" title="2. Criar Certificado Seguro (HTTPS)" icon={Lock} colorClass="text-emerald-600 bg-emerald-600" />
+        {openSection === 'acm_setup' && (
           <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 space-y-6 animate-fade-in-down">
-            <p className="text-slate-600 dark:text-slate-300 border-l-4 border-orange-500 pl-4 bg-orange-50 dark:bg-orange-900/10 p-3 rounded-r-lg">
-               Este projeto foi rearquitetado conceitualmente para operar como uma solução <strong>100% AWS Serverless</strong>. Abaixo apresentamos o mapeamento técnico ("De/Para") exigido no Dossiê de Projeto.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               {/* 1. Hosting */}
-               <div className="border border-slate-200 dark:border-slate-700 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50 hover:border-orange-300 transition-colors">
-                  <h4 className="font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-2">
-                     <Globe size={18} className="text-blue-500"/> Frontend & Hosting
-                  </h4>
-                  <div className="text-sm space-y-2">
-                     <div className="flex justify-between items-center bg-white dark:bg-slate-800 p-2 rounded border border-slate-200 dark:border-slate-700">
-                        <span className="text-slate-400 line-through">Vercel</span>
-                        <ArrowRight size={14} className="text-slate-400"/>
-                        <span className="font-bold text-orange-600 dark:text-orange-400">Amazon S3 + CloudFront</span>
-                     </div>
-                     <p className="text-slate-600 dark:text-slate-400 text-xs mt-1 leading-relaxed">
-                        O bucket S3 armazena os arquivos estáticos (HTML/JS) do React. O CloudFront atua como CDN (Content Delivery Network) para garantir baixa latência global (RNF04).
-                     </p>
-                  </div>
-               </div>
-
-               {/* 2. Auth */}
-               <div className="border border-slate-200 dark:border-slate-700 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50 hover:border-orange-300 transition-colors">
-                  <h4 className="font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-2">
-                     <ShieldCheck size={18} className="text-emerald-500"/> Identidade & Autenticação
-                  </h4>
-                  <div className="text-sm space-y-2">
-                     <div className="flex justify-between items-center bg-white dark:bg-slate-800 p-2 rounded border border-slate-200 dark:border-slate-700">
-                        <span className="text-slate-400 line-through">Supabase Auth</span>
-                         <ArrowRight size={14} className="text-slate-400"/>
-                        <span className="font-bold text-orange-600 dark:text-orange-400">Amazon Cognito</span>
-                     </div>
-                     <p className="text-slate-600 dark:text-slate-400 text-xs mt-1 leading-relaxed">
-                        Utilizamos <strong>User Pools</strong> para gerenciar o cadastro e login. Isso garante o isolamento dos projetos de cada estudante (RNF02) e segurança nativa.
-                     </p>
-                  </div>
-               </div>
-
-               {/* 3. Backend */}
-               <div className="border border-slate-200 dark:border-slate-700 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50 hover:border-orange-300 transition-colors">
-                  <h4 className="font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-2">
-                     <Server size={18} className="text-purple-500"/> Backend & Orquestração
-                  </h4>
-                  <div className="text-sm space-y-2">
-                     <div className="flex justify-between items-center bg-white dark:bg-slate-800 p-2 rounded border border-slate-200 dark:border-slate-700">
-                        <span className="text-slate-400 line-through">Edge Functions</span>
-                         <ArrowRight size={14} className="text-slate-400"/>
-                        <span className="font-bold text-orange-600 dark:text-orange-400">AWS Lambda + API Gateway</span>
-                     </div>
-                     <p className="text-slate-600 dark:text-slate-400 text-xs mt-1 leading-relaxed">
-                        A função Lambda executa a lógica de negócio: recebe o ZIP, descompacta, cria o bucket de destino e configura o site estático automaticamente.
-                     </p>
-                  </div>
-               </div>
-
-               {/* 4. Database */}
-               <div className="border border-slate-200 dark:border-slate-700 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50 hover:border-orange-300 transition-colors">
-                  <h4 className="font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-2">
-                     <Database size={18} className="text-indigo-500"/> Banco de Dados
-                  </h4>
-                  <div className="text-sm space-y-2">
-                     <div className="flex justify-between items-center bg-white dark:bg-slate-800 p-2 rounded border border-slate-200 dark:border-slate-700">
-                        <span className="text-slate-400 line-through">PostgreSQL</span>
-                         <ArrowRight size={14} className="text-slate-400"/>
-                        <span className="font-bold text-orange-600 dark:text-orange-400">Amazon DynamoDB</span>
-                     </div>
-                     <p className="text-slate-600 dark:text-slate-400 text-xs mt-1 leading-relaxed">
-                        Armazenamento NoSQL de alta performance para os metadados dos projetos (URL gerada, ID do dono, Data de Deploy). Escalabilidade automática.
-                     </p>
-                  </div>
-               </div>
-            </div>
-            
-            <div className="mt-6 p-5 bg-slate-900 text-slate-300 rounded-lg border border-slate-700 font-mono text-xs shadow-inner">
-               <div className="flex items-center gap-2 mb-3 text-emerald-400 font-bold uppercase tracking-widest border-b border-slate-700 pb-2">
-                  <Cpu size={14}/> Fluxo de Dados do MVP (Deploy)
-               </div>
-               <ol className="space-y-3 list-decimal list-inside text-slate-400">
-                  <li>
-                    <strong className="text-white">Upload:</strong> Usuário envia <code>.zip</code> via React App <span className="text-slate-600">&rarr;</span> API Gateway.
-                  </li>
-                  <li>
-                    <strong className="text-white">Trigger:</strong> API Gateway aciona a função <code>Lambda Orquestradora</code>.
-                  </li>
-                  <li>
-                    <strong className="text-white">Processamento:</strong> Lambda descompacta o arquivo em memória (ou <code>/tmp</code>).
-                  </li>
-                  <li>
-                    <strong className="text-white">Deploy:</strong> Lambda envia arquivos para um bucket S3 público configurado como Website.
-                  </li>
-                  <li>
-                    <strong className="text-white">Registro:</strong> Lambda salva a nova URL gerada na tabela <code>Projects</code> do DynamoDB.
-                  </li>
-                  <li>
-                    <strong className="text-white">Retorno:</strong> Frontend recebe a URL pública e exibe ao usuário.
-                  </li>
-               </ol>
-            </div>
+             <div className="space-y-4">
+                <h4 className="font-bold text-slate-800 dark:text-white">Como criar o cadeado de segurança:</h4>
+                <ol className="list-decimal list-inside text-sm text-slate-600 dark:text-slate-400 space-y-3">
+                    <li>Na AWS, pesquise por <strong>Certificate Manager</strong>.</li>
+                    <li>
+                        <span className="text-red-500 font-bold">⚠️ IMPORTANTE:</span> No topo direito da tela, verifique se a região está <strong>N. Virginia (us-east-1)</strong>. O CloudFront só aceita certificados feitos lá.
+                    </li>
+                    <li>Clique em <strong>Solicitar certificado</strong> (Request certificate) &rarr; Próximo.</li>
+                    <li>Em "Nomes de domínio", adicione dois nomes:
+                        <ul className="list-disc list-inside ml-6 mt-1 font-mono text-slate-800 dark:text-white">
+                            <li>edivaldojuniordev.com.br</li>
+                            <li>*.edivaldojuniordev.com.br</li>
+                        </ul>
+                    </li>
+                    <li>Validação: Escolha <strong>Validação de DNS</strong>.</li>
+                    <li>Clique em <strong>Solicitar</strong>.</li>
+                    <li>
+                        <strong>O PULO DO GATO:</strong> Atualize a página. Clique no ID do certificado (que estará "Pendente").
+                        Procure o botão <strong>"Criar registros no Route 53"</strong>. Clique nele e confirme.
+                        <br/>
+                        <span className="text-xs text-slate-500 italic">Isso configura a validação automática. Em alguns minutos, o status mudará para "Emitido" (Issued).</span>
+                    </li>
+                </ol>
+             </div>
           </div>
         )}
 
-        {/* SECTION 4: IMPLEMENTAÇÃO DIDÁTICA */}
-        <SectionHeader id="tech" title="4. Nota sobre a Implementação Atual (Sala de Aula)" icon={Code2} colorClass="text-emerald-600 bg-emerald-600" />
-        {openSection === 'tech' && (
-          <div className="bg-slate-900 text-slate-300 p-6 rounded-xl border border-slate-700 font-mono text-sm space-y-6 animate-fade-in-down">
-            <p className="italic text-slate-400">Devido às restrições de ambiente de laboratório, utilizamos uma stack de emulação:</p>
-            <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-800 p-3 rounded border border-slate-700 flex items-center justify-between">
-                  <span className="text-white">Emulador Lambda</span>
-                  <span className="text-xs bg-emerald-900 text-emerald-300 px-2 py-1 rounded">Node.js Express</span>
-                </div>
-                <div className="bg-slate-800 p-3 rounded border border-slate-700 flex items-center justify-between">
-                  <span className="text-white">Emulador DynamoDB</span>
-                  <span className="text-xs bg-blue-900 text-blue-300 px-2 py-1 rounded">SQLite Local</span>
-                </div>
-            </div>
+        {/* PASSO 3: CLOUDFRONT FINAL */}
+        <SectionHeader id="cloudfront_final" title="3. CloudFront Final: Conectando Tudo" icon={Zap} colorClass="text-purple-600 bg-purple-600" />
+        {openSection === 'cloudfront_final' && (
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 space-y-6 animate-fade-in-down">
+             <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-100 dark:border-purple-800 mb-4">
+                <p className="text-sm text-purple-800 dark:text-purple-200">
+                   Agora vamos criar o link <code>portfolioclouddev.edivaldojuniordev.com.br</code>.
+                </p>
+             </div>
+
+             <div className="space-y-4">
+                <h4 className="font-bold text-slate-800 dark:text-white">Configuração do CloudFront:</h4>
+                <ol className="list-decimal list-inside text-sm text-slate-600 dark:text-slate-400 space-y-3">
+                    <li>Vá ao <strong>CloudFront</strong> e clique em <strong>Create distribution</strong>.</li>
+                    <li><strong>Origin domain:</strong> Escolha seu bucket S3. (Clique em "Use website endpoint" se aparecer o aviso).</li>
+                    <li><strong>Viewer protocol policy:</strong> Redirect HTTP to HTTPS.</li>
+                    <li><strong>Web Application Firewall (WAF):</strong> "Do not enable".</li>
+                    <li>
+                        <strong>Alternate domain name (CNAME):</strong> Clique em "Add item" e digite:
+                        <div className="font-mono text-slate-800 dark:text-white font-bold ml-6 mt-1">
+                            portfolioclouddev.edivaldojuniordev.com.br
+                        </div>
+                    </li>
+                    <li>
+                        <strong>Custom SSL certificate:</strong> Clique na caixa e selecione o certificado que você criou no passo anterior.
+                    </li>
+                    <li>Role até o fim e clique em <strong>Create distribution</strong>.</li>
+                </ol>
+             </div>
+
+             <div className="border-t border-slate-200 dark:border-slate-700 pt-4 mt-4">
+                 <h4 className="font-bold text-slate-800 dark:text-white mb-2">Último Passo: Apontar o Subdomínio</h4>
+                 <ol className="list-decimal list-inside text-sm text-slate-600 dark:text-slate-400 space-y-2">
+                    <li>Volte ao <strong>Route 53</strong> e entre na sua zona hospedada.</li>
+                    <li>Clique em <strong>Criar registro</strong> (Create record).</li>
+                    <li><strong>Nome do registro:</strong> Digite <code>portfolioclouddev</code> (para formar o subdomínio).</li>
+                    <li>Ative o botão <strong>Alias</strong>.</li>
+                    <li>Em "Direcionar tráfego para":
+                        <ul className="list-disc list-inside ml-6 text-xs">
+                            <li>Alias para distribuição do CloudFront</li>
+                            <li>Cole o domínio do CloudFront (d123...cloudfront.net) que acabou de ser criado.</li>
+                        </ul>
+                    </li>
+                    <li>Clique em <strong>Criar registros</strong>.</li>
+                 </ol>
+                 <div className="mt-4 text-center">
+                     <p className="text-emerald-600 font-bold">🎉 PRONTO! Em alguns minutos seu link oficial estará no ar com HTTPS.</p>
+                 </div>
+             </div>
           </div>
         )}
+
+        {/* SECTION 5: MODELO DE PREENCHIMENTO */}
+        <SectionHeader id="template" title="5. Modelo de Documentação & Relatório" icon={FileText} colorClass="text-pink-600 bg-pink-600" />
+        {openSection === 'template' && (
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 space-y-6 animate-fade-in-down">
+             <div className="flex items-center justify-between mb-4 p-3 bg-pink-50 dark:bg-pink-900/20 text-pink-800 dark:text-pink-300 rounded-lg border border-pink-200 dark:border-pink-800">
+                <div className="flex items-center gap-2">
+                    <Printer size={20} />
+                    <span className="font-bold text-sm">Este é o modelo final (layout) para o documento oficial da equipe.</span>
+                </div>
+             </div>
+
+             <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-lg font-mono text-xs md:text-sm text-slate-700 dark:text-slate-300 shadow-inner overflow-x-auto">
+                <div className="min-w-[600px]">
+                    <h3 className="text-lg font-bold border-b-2 border-slate-300 dark:border-slate-600 pb-2 mb-4 uppercase text-center">EXEMPLO DE PREENCHIMENTO COMPLETO: MATRIZ DE ANÁLISE COMPARATIVA</h3>
+                    
+                    <div className="grid grid-cols-12 gap-2 border-b border-slate-300 dark:border-slate-600 pb-2 mb-2 font-bold bg-slate-200 dark:bg-slate-800 p-2">
+                        <div className="col-span-4">CRITÉRIO DE AVALIAÇÃO</div>
+                        <div className="col-span-4 text-center">PROPOSTA A (Ex: E-Waste)</div>
+                        <div className="col-span-4 text-center">PROPOSTA B (Ex: Portfólio)</div>
+                    </div>
+
+                    {CRITERIA.map((crit, idx) => (
+                        <div key={idx} className="mb-6 border-b border-slate-200 dark:border-slate-700 pb-4 last:border-0">
+                            <div className="font-bold text-slate-900 dark:text-white mb-2">{idx + 1}. {crit}</div>
+                            <div className="grid grid-cols-12 gap-4">
+                                <div className="col-span-6 bg-white dark:bg-slate-800 p-3 rounded border border-slate-200 dark:border-slate-700">
+                                    <p className="italic text-slate-500 mb-2">"Análise técnica da proposta A..."</p>
+                                    <div className="space-y-1 text-[10px] uppercase font-bold text-slate-400">
+                                        <div className="flex justify-between"><span>Membro 1:</span> <span className="text-slate-800 dark:text-white">[ 4 ]</span></div>
+                                        <div className="flex justify-between"><span>Membro 2:</span> <span className="text-slate-800 dark:text-white">[ 3 ]</span></div>
+                                    </div>
+                                </div>
+                                <div className="col-span-6 bg-white dark:bg-slate-800 p-3 rounded border border-slate-200 dark:border-slate-700">
+                                    <p className="italic text-slate-500 mb-2">"Análise técnica da proposta B..."</p>
+                                    <div className="space-y-1 text-[10px] uppercase font-bold text-slate-400">
+                                        <div className="flex justify-between"><span>Membro 1:</span> <span className="text-slate-800 dark:text-white">[ 5 ]</span></div>
+                                        <div className="flex justify-between"><span>Membro 2:</span> <span className="text-slate-800 dark:text-white">[ 5 ]</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+
+                    <div className="mt-4 p-3 bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700 rounded text-center">
+                        <h4 className="font-bold text-emerald-800 dark:text-emerald-300">RESULTADO FINAL</h4>
+                        <div className="grid grid-cols-2 mt-2 gap-4">
+                            <div>
+                                <div className="text-xs uppercase">Proposta A</div>
+                                <div className="text-xl font-black">16.5 / 20</div>
+                            </div>
+                            <div>
+                                <div className="text-xs uppercase">Proposta B (Vencedora)</div>
+                                <div className="text-xl font-black text-emerald-600 dark:text-emerald-400">19.2 / 20</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
