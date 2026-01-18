@@ -1,18 +1,18 @@
-
 import React, { useState } from 'react';
 import { Team, User } from '../types';
-import { Edit3, Users, Briefcase, BarChart3, Check, Loader2, ArrowRight, UserCheck } from 'lucide-react';
+import { Edit3, Users, Briefcase, BarChart3, Check, Loader2, ArrowRight, UserCheck, Zap } from 'lucide-react';
 
 interface TeamDashboardProps {
   teams: Team[];
   onSaveTeam: (team: Team) => Promise<void>;
   onEnterMatrix: (team: Team) => void;
   onViewMembers?: (team: Team) => void; 
-  onViewRoles?: (team: Team) => void; // Nova prop
+  onViewRoles?: (team: Team) => void;
+  onDeployProject?: (team: Team) => void;
   currentUser: User;
 }
 
-const TeamDashboard: React.FC<TeamDashboardProps> = ({ teams, onSaveTeam, onEnterMatrix, onViewMembers, onViewRoles, currentUser }) => {
+const TeamDashboard: React.FC<TeamDashboardProps> = ({ teams, onSaveTeam, onEnterMatrix, onViewMembers, onViewRoles, onDeployProject, currentUser }) => {
   const [editingTeamId, setEditingTeamId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Team | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -97,6 +97,16 @@ const TeamDashboard: React.FC<TeamDashboardProps> = ({ teams, onSaveTeam, onEnte
 
             {/* Footer Card Actions */}
             <div className="p-6 bg-slate-50/50 dark:bg-slate-800/20 flex flex-col gap-2">
+               {/* BOTÃO DE DEPLOY */}
+               {onDeployProject && (team.teamNumber === 3 || currentUser.role === 'admin') && (
+                  <button 
+                     onClick={() => onDeployProject(team)}
+                     className="w-full bg-gradient-to-r from-orange-600 to-orange-500 text-white py-3 rounded-xl text-xs font-black flex items-center justify-center gap-2 shadow-lg hover:shadow-orange-500/20 transition-all transform hover:-translate-y-1 mb-2"
+                  >
+                     <Zap size={16} /> ACESSAR DEPLOYER AWS
+                  </button>
+               )}
+
                <div className="flex gap-2">
                   {onViewMembers && (
                     <button 

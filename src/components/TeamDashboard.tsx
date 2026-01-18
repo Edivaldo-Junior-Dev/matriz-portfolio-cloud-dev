@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Team, User } from '../types';
 import { Edit3, Users, Briefcase, BarChart3, Check, Loader2, ArrowRight, UserCheck, Zap } from 'lucide-react';
@@ -9,7 +8,7 @@ interface TeamDashboardProps {
   onEnterMatrix: (team: Team) => void;
   onViewMembers?: (team: Team) => void; 
   onViewRoles?: (team: Team) => void;
-  onDeployProject?: (team: Team) => void; // Nova Prop
+  onDeployProject?: (team: Team) => void;
   currentUser: User;
 }
 
@@ -98,7 +97,7 @@ const TeamDashboard: React.FC<TeamDashboardProps> = ({ teams, onSaveTeam, onEnte
 
             {/* Footer Card Actions */}
             <div className="p-6 bg-slate-50/50 dark:bg-slate-800/20 flex flex-col gap-2">
-               {/* BOTÃO DE DEPLOY (APENAS PARA A EQUIPE 3 OU ADMIN) */}
+               {/* BOTÃO DE DEPLOY */}
                {onDeployProject && (team.teamNumber === 3 || currentUser.role === 'admin') && (
                   <button 
                      onClick={() => onDeployProject(team)}

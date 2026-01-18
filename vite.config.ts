@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   
   return {
+    base: './', // IMPORTANTE: Permite que o site rode em subpastas ou S3 buckets sem domínio raiz
     plugins: [react()],
     resolve: {
       alias: {

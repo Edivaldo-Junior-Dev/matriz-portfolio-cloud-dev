@@ -214,7 +214,7 @@ const App: React.FC = () => {
           <div className="flex items-center gap-4">
             <div className="bg-orange-500 text-white p-2 rounded-xl shadow-lg shadow-orange-500/20"><Layers size={20} /></div>
             <div>
-              <h1 className="text-lg font-black dark:text-white leading-none tracking-tighter">Matriz<span className="text-orange-500">Cognis</span></h1>
+              <h1 className="text-lg font-black dark:text-white leading-none tracking-tighter">Portfólio<span className="text-orange-500">CloudDev</span></h1>
               <p className="text-[10px] text-slate-400 mt-1 font-bold uppercase tracking-widest flex items-center gap-2">
                 {syncStatus === 'online' ? <span className="text-emerald-500">● CONECTADO</span> : <span className="text-amber-500">● MODO OFFLINE</span>}
               </p>
