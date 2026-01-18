@@ -228,7 +228,7 @@ const GuidePanel: React.FC<GuidePanelProps> = ({ members, proposals }) => {
                </div>
                <ol className="space-y-3 list-decimal list-inside text-slate-400">
                   <li>
-                    <strong className="text-white">Upload:</strong> Usuário envia <code>.zip</code> via React App <span className="text-slate-600">-></span> API Gateway.
+                    <strong className="text-white">Upload:</strong> Usuário envia <code>.zip</code> via React App <span className="text-slate-600">&rarr;</span> API Gateway.
                   </li>
                   <li>
                     <strong className="text-white">Trigger:</strong> API Gateway aciona a função <code>Lambda Orquestradora</code>.
